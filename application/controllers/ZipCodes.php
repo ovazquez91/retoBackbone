@@ -48,8 +48,6 @@ class ZipCodes extends REST_Controller {
 
     }
 
-    public function hola(){
-        $this->load->view('hola.php');
-    }
+    
 
 }
