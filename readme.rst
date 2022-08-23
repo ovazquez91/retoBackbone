@@ -1,70 +1,73 @@
 ###################
-What is CodeIgniter
+Reto Tecnico
+Backend Developer 
 ###################
 
-CodeIgniter is an Application Development Framework - a toolkit - for people
-who build web sites using PHP. Its goal is to enable you to develop projects
-much faster than you could if you were writing code from scratch, by providing
-a rich set of libraries for commonly needed tasks, as well as a simple
-interface and logical structure to access these libraries. CodeIgniter lets
-you creatively focus on your project by minimizing the amount of code needed
-for a given task.
+Hi everyone,
+this project is made in Codeigniter 3:
 
-*******************
-Release Information
-*******************
+https://digitaltec.com.mx/api/zip-codes/01210
 
-This repo contains in-development code for future releases. To download the
-latest stable release please visit the `CodeIgniter Downloads
-<https://codeigniter.com/download>`_ page.
+//Need these libraries for create Api rest
+require_once("application/libraries/REST_Controller.php");
 
-**************************
-Changelog and New Features
-**************************
+//That libraries is for the format of the Api (JSON, XML, HTML, ETC)
+require_once("application/libraries/Format.php");
 
-You can find a list of all changes for each release in the `user
-guide change log <https://github.com/bcit-ci/CodeIgniter/blob/develop/user_guide_src/source/changelog.rst>`_.
+Configure of the database:
 
-*******************
-Server Requirements
-*******************
+In this part a create de configuration of the database
+/application/config/database.php 
 
-PHP version 5.6 or newer is recommended.
 
-It should work on 5.3.7 as well, but we strongly advise you NOT to run
-such old versions of PHP, because of potential security and performance
-issues, as well as missing features.
+Configure of the routes:
 
-************
-Installation
-************
+/application/config/routes.php
 
-Please see the `installation section <https://codeigniter.com/user_guide/installation/index.html>`_
-of the CodeIgniter User Guide.
+In this part i configure de routes for call my controller such as the challenge
 
-*******
-License
-*******
+$route['zip-codes/(:num)'] = 'zipCodes/$1';
 
-Please see the `license
-agreement <https://github.com/bcit-ci/CodeIgniter/blob/develop/user_guide_src/source/license.rst>`_.
+the file that I use for the the challenge is:
 
-*********
-Resources
-*********
+/application/controllers/ZipCodes.php
 
--  `User Guide <https://codeigniter.com/docs>`_
--  `Language File Translations <https://github.com/bcit-ci/codeigniter3-translations>`_
--  `Community Forums <http://forum.codeigniter.com/>`_
--  `Community Wiki <https://github.com/bcit-ci/CodeIgniter/wiki>`_
--  `Community Slack Channel <https://codeigniterchat.slack.com>`_
+This is my controller with the api rest:
 
-Report security issues to our `Security Panel <mailto:security@codeigniter.com>`_
-or via our `page on HackerOne <https://hackerone.com/codeigniter>`_, thank you.
+class ZipCodes extends REST_Controller {
 
-***************
-Acknowledgement
-***************
+  
+    //I made a function for show an index, this function receive one parameter (zip code)
+    public function index_get($zipCode = 0){
 
-The CodeIgniter team would like to thank EllisLab, all the
-contributors to the CodeIgniter project and you, the CodeIgniter user.
+        // if the variable is empty it generates a 404 error
+        if(!empty($zipCode)){
+            //i genereated a query of my database
+            $this->db->select('*');
+            $this->db->from('estados');
+            $this->db->where('d_codigo', $zipCode);
+            $query = $this->db->get();
+            //the variable $data show all content of the database where "d_codigo" is equal to variable $zipCode
+            $data = $query->result();
+            if(!$data){
+                //if the variable $data dont have content it generates a 404 error
+                $this->response([
+                    'status' => FALSE,
+                    'message' => 'no data found'
+                 ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) 
+            }else{
+                //if the variable $data have content show HTTP_OK
+            $this->response($data, REST_Controller::HTTP_OK);
+            }
+            }
+            else
+            {
+                //Response - Error 404
+                $this->response([
+                    //send a status false
+                   'status' => FALSE,
+                   'message' => 'no data found'
+                ], REST_Controller::HTTP_NOT_FOUND); 
+            }
+
+    }
